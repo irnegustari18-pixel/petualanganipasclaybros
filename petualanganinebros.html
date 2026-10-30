@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Petualangan IPAS Clay Bros - Kelas 6 SD</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .font-clay {
+            font-family: 'Fredoka One', cursive;
+        }
+
+        /* Claymorphism Styling Effects */
+        .clay-card {
+            background: #ffffff;
+            border-radius: 28px;
+            box-shadow: 
+                8px 8px 16px rgba(166, 180, 200, 0.7),
+                -8px -8px 16px rgba(255, 255, 255, 0.9),
+                inset 3px 3px 6px rgba(255, 255, 255, 0.8),
+                inset -3px -3px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .clay-btn {
+            border-radius: 20px;
+            box-shadow: 
+                4px 6px 0px rgba(0,0,0,0.2),
+                inset 2px 2px 4px rgba(255,255,255,0.6),
+                inset -2px -2px 4px rgba(0,0,0,0.15);
+            transition: all 0.1s ease;
+        }
+
+        .clay-btn:active {
+            transform: translateY(4px);
+            box-shadow: 
+                0px 2px 0px rgba(0,0,0,0.2),
+                inset 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .clay-btn-green {
+            background: linear-gradient(145deg, #4ade80, #22c55e);
+            color: white;
+            border: 3px solid #16a34a;
+        }
+
+        .clay-btn-yellow {
+            background: linear-gradient(145deg, #facc15, #eab308);
+            color: #713f12;
+            border: 3px solid #ca8a04;
+        }
+
+        .clay-btn-blue {
+            background: linear-gradient(145deg, #38bdf8, #0284c7);
+            color: white;
+            border: 3px solid #0369a1;
+        }
+
+        .clay-btn-red {
+            background: linear-gradient(145deg, #f87171, #ef4444);
+            color: white;
+            border: 3px solid #dc2626;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        #gameCanvas {
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+            background: #87CEEB;
+        }
+
+        /* Custom Checkbox Styling for HOTS Questions */
+        .custom-checkbox input[type="checkbox"] {
+            display: none;
+        }
+        .custom-checkbox .checkmark {
+            width: 26px;
+            height: 26px;
+            background-color: #f1f5f9;
+            border: 3px solid #cbd5e1;
+            border-radius: 8px;
+            display: inline-block;
+            position: relative;
+            margin-right: 12px;
+            transition: all 0.2s;
+        }
+        .custom-checkbox input[type="checkbox"]:checked + .checkmark {
+            background-color: #22c55e;
+            border-color: #16a34a;
+        }
+        .custom-checkbox input[type="checkbox"]:checked + .checkmark:after {
+            content: "";
+            position: absolute;
+            left: 7px;
+            top: 3px;
+            width: 7px;
+            height: 13px;
+            border: solid white;
+            border-width: 0 3px 3px 0;
+            transform: rotate(45deg);
+        }
+    </style>
+</head>
+<body class="select-none">
+
+    <!-- Container Utama Gim -->
+    <div id="gameContainer" class="relative w-full max-w-5xl h-[95vh] max-h-[720px] p-2 md:p-4 flex flex-col items-center justify-center">
+
+        <!-- Header Navigation & Status Bar HUD -->
+        <div id="hud" class="w-full max-w-4xl flex justify-between items-center bg-white/80 backdrop-blur-md px-6 py-3 rounded-3xl mb-3 shadow-lg border-2 border-white/60 hidden z-10">
+            <div class="flex items-center space-x-6">
+                <!-- Nyawa / Hati Clay -->
+                <div class="flex items-center space-x-2">
+                    <span class="text-2xl">❤️</span>
+                    <span id="livesText" class="font-clay text-2xl text-red-500">3</span>
+                </div>
+                <!-- Koin IPAS -->
+                <div class="flex items-center space-x-2">
+                    <span class="text-2xl">🪙</span>
+                    <span id="coinsText" class="font-clay text-2xl text-yellow-600">0</span>
+                </div>
+                <!-- Skor -->
+                <div class="flex items-center space-x-2">
+                    <span class="font-bold text-slate-500">SKOR:</span>
+                    <span id="scoreText" class="font-clay text-2xl text-blue-600">0</span>
+                </div>
+            </div>
+            <!-- Progress Soal HOTS -->
+            <div class="flex items-center space-x-3 bg-amber-100 px-4 py-1.5 rounded-full border-2 border-amber-300">
+                <span class="text-xl">⭐</span>
+                <span id="quizProgressText" class="font-clay text-amber-800 text-lg">Soal: 0/10</span>
+            </div>
+        </div>
+
+        <!-- Area Utama Canvas Game -->
+        <div class="relative w-full flex-1 flex items-center justify-center overflow-hidden">
+            <canvas id="gameCanvas" class="w-full h-full object-contain"></canvas>
+
+            <!-- Overlay MENU UTAMA -->
+            <div id="mainMenu" class="absolute inset-0 flex flex-col items-center justify-center bg-sky-400/30 backdrop-blur-sm p-4 z-20">
+                <div class="clay-card p-8 text-center max-w-md w-full border-4 border-white animate-bounce-slow">
+                    <div class="text-5xl mb-2">🍄 Plastisin IPAS 🦖</div>
+                    <h1 class="font-clay text-4xl text-sky-700 tracking-wide drop-shadow-md mb-2">CLAY BROS</h1>
+                    <p class="text-slate-600 font-bold mb-6 text-sm">Petualangan Sains & Sosial Kelas 6 SD</p>
+
+                    <div class="space-y-4">
+                        <button id="btnStart" class="w-full py-4 text-xl font-clay clay-btn clay-btn-green tracking-wider uppercase">
+                            ▶   Mulai Bermain
+                        </button>
+                        <button id="btnHowTo" class="w-full py-3 text-lg font-clay clay-btn clay-btn-yellow tracking-wider">
+                            ❓ Cara Bermain
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Overlay PETUNJUK CARA BERMAIN -->
+            <div id="instructionsModal" class="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 z-30 hidden">
+                <div class="clay-card p-6 max-w-lg w-full border-4 border-white relative max-h-[90vh] overflow-y-auto">
+                    <h2 class="font-clay text-2xl text-sky-700 mb-4 text-center">🎮 Petunjuk Bermain</h2>
+                    <ul class="text-slate-700 space-y-3 text-sm font-semibold">
+                        <li class="flex items-start"><span class="mr-2 text-xl">🕹️</span> <b>Kontrol:</b> Gunakan Tombol Panah Kiri/Kanan (A/D) untuk jalan, Panah Atas / Spacebar untuk lompat. Untuk HP/Tablet gunakan tombol sentuh di layar.</li>
+                        <li class="flex items-start"><span class="mr-2 text-xl">❓</span> <b>Blok Rahasia IPAS:</b> Sundul/Lompati Blok <b>'?'</b> untuk membuka 10 Soal Kuis HOTS.</li>
+                        <li class="flex items-start"><span class="mr-2 text-xl">📝</span> <b>Kuis HOTS (Pilihan Ganda Kompleks):</b> Pilihlah <u>SATU ATAU LEBIH</u> jawaban yang benar! Centang semua opsi yang menurutmu tepat.</li>
+                        <li class="flex items-start"><span class="mr-2 text-xl">👾</span> <b>Musuh Polusi:</b> Hindari atau lompati Monster Limbah Clay hitam. Jika menyentuhnya, nyawamu berkurang.</li>
+                        <li class="flex items-start"><span class="mr-2 text-xl">🪙</span> <b>Koin & Skor:</b> Kumpulkan koin di jalanan dan jawab kuis dengan benar untuk skor maksimal!</li>
+                    </ul>
+                    <button id="btnCloseHowTo" class="w-full mt-6 py-3 font-clay clay-btn clay-btn-blue text-white">
+                        Saya Mengerti!
+                    </button>
+                </div>
+            </div>
+
+            <!-- POP-UP KUIS HOTS (Pilihan Ganda Kompleks) -->
+            <div id="quizModal" class="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-md p-4 z-40 hidden">
+                <div class="clay-card p-6 md:p-8 max-w-2xl w-full border-4 border-amber-300 relative max-h-[95vh] overflow-y-auto flex flex-col justify-between">
+                    <div>
+                        <!-- Header Kuis -->
+                        <div class="flex justify-between items-center mb-4 pb-3 border-b-2 border-slate-100">
+                            <span class="font-clay text-amber-600 text-lg md:text-xl flex items-center">
+                                🌟 KUIS HOTS IPAS KELAS 6
+                            </span>
+                            <span id="modalQuestionNum" class="bg-amber-100 text-amber-800 font-bold px-3 py-1 rounded-full text-xs md:text-sm">
+                                Soal #1
+                            </span>
+                        </div>
+
+                        <!-- Pertanyaan -->
+                        <div id="quizQuestionText" class="text-base md:text-lg font-bold text-slate-800 mb-2 leading-relaxed">
+                            -- Pertanyaan Kuis --
+                        </div>
+                        <p class="text-xs font-bold text-sky-600 mb-4 flex items-center">
+                            💡 Catatan: Pilih satu atau LEBIH dari satu jawaban yang benar (Pilihan Ganda Kompleks).
+                        </p>
+
+                        <!-- Pilihan Jawaban Checkbox -->
+                        <div id="quizOptionsContainer" class="space-y-3 mb-4">
+                            <!-- Opsi akan di-render dinamis oleh JS -->
+                        </div>
+
+                        <!-- Pembahasan / Feedback -->
+                        <div id="quizFeedback" class="hidden p-4 rounded-2xl mb-4 text-sm font-bold border-2"></div>
+                    </div>
+
+                    <!-- Tombol Aksi -->
+                    <div class="mt-2 flex justify-end space-x-3">
+                        <button id="btnSubmitAnswer" class="w-full py-3.5 font-clay clay-btn clay-btn-green text-lg tracking-wide">
+                            Jawab & Periksa 🚀
+                        </button>
+                        <button id="btnNextQuiz" class="w-full py-3.5 font-clay clay-btn clay-btn-blue text-lg tracking-wide hidden">
+                            Lanjutkan Petualangan ➡️
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- POP-UP EVALUASI / AKHIR GIM (GAMEOVER & VICTORY) -->
+            <div id="endGameModal" class="absolute inset-0 flex items-center justify-center bg-black/70 backdrop-blur-md p-4 z-50 hidden">
+                <div class="clay-card p-8 max-w-md w-full text-center border-4 border-white">
+                    <div id="endGameIcon" class="text-6xl mb-3">🏆</div>
+                    <h2 id="endGameTitle" class="font-clay text-3xl text-sky-700 mb-2">Petualangan Selesai!</h2>
+                    <p id="endGameSubtitle" class="text-slate-600 font-bold text-sm mb-6">Berikut adalah hasil evaluasi belajar IPAS Kelas 6 kamu:</p>
+
+                    <div class="bg-slate-50 rounded-2xl p-4 mb-6 space-y-3 text-left border border-slate-200">
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-slate-500 font-bold">Jawaban Benar HOTS:</span>
+                            <span id="endCorrectCount" class="font-clay text-lg text-emerald-600">0 / 10</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-slate-500 font-bold">Total Koin Dikumpul:</span>
+                            <span id="endCoins" class="font-clay text-lg text-yellow-600">0</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm border-t pt-2">
+                            <span class="text-slate-700 font-extrabold">Nilai Akhir Evaluasi:</span>
+                            <span id="endFinalScore" class="font-clay text-2xl text-blue-600">0</span>
+                        </div>
+                        <div id="endGradeBadge" class="text-center py-1.5 px-3 rounded-xl font-bold text-xs mt-2">
+                            -- Predikat --
+                        </div>
+                    </div>
+
+                    <button id="btnRestart" class="w-full py-4 text-lg font-clay clay-btn clay-btn-green">
+                        🔄 Main Lagi / Ulangi
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tombol Kontrol Sentuh Mobile/Tablet -->
+        <div id="touchControls" class="w-full max-w-4xl flex justify-between items-center mt-3 px-4 py-2 bg-white/40 backdrop-blur-sm rounded-2xl border border-white/50">
+            <!-- D-Pad Kiri & Kanan -->
+            <div class="flex space-x-3">
+                <button id="btnTouchLeft" class="w-14 h-14 clay-btn clay-btn-blue text-2xl flex items-center justify-center font-bold">◀</button>
+                <button id="btnTouchRight" class="w-14 h-14 clay-btn clay-btn-blue text-2xl flex items-center justify-center font-bold">▶</button>
+            </div>
+            <!-- Tombol Action Lompat -->
+            <div class="flex space-x-3">
+                <button id="btnTouchJump" class="w-16 h-14 clay-btn clay-btn-yellow text-xl font-clay flex items-center justify-center">LOMPAT 🚀</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        /* ==========================================================================
+           AUDIO SYNTHESIZER (Web Audio API)
+           ========================================================================== */
+        class SoundEffects {
+            constructor() {
+                this.ctx = null;
+            }
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+            playJump() {
+                if (!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(150, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(400, this.ctx.currentTime + 0.15);
+                gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.15);
+            }
+            playCoin() {
+                if (!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(987.77, this.ctx.currentTime); // B5
+                osc.frequency.setValueAtTime(1318.51, this.ctx.currentTime + 0.08); // E6
+                gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.3);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.3);
+            }
+            playCorrect() {
+                if (!this.ctx) return;
+                const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+                notes.forEach((freq, i) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime + i * 0.08);
+                    gain.gain.setValueAtTime(0.2, this.ctx.currentTime + i * 0.08);
+                    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + i * 0.08 + 0.2);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(this.ctx.currentTime + i * 0.08);
+                    osc.stop(this.ctx.currentTime + i * 0.08 + 0.2);
+                });
+            }
+            playWrong() {
+                if (!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(200, this.ctx.currentTime);
+                osc.frequency.linearRampToValueAtTime(100, this.ctx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.3);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.3);
+            }
+            playHit() {
+                if (!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(120, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(40, this.ctx.currentTime + 0.2);
+                gain.gain.setValueAtTime(0.4, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.2);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.2);
+            }
+        }
+        const sfx = new SoundEffects();
+
+        /* ==========================================================================
+           BANK SOAL HOTS IPAS KELAS 6 SD (Pilihan Ganda Kompleks)
+           ========================================================================== */
+        const quizBank = [
+            {
+                id: 1,
+                question: "Sebuah ekosistem hutan mengalami kebakaran yang meluas akibat kemarau panjang. Manakah dari pernyataan berikut yang merupakan analisis dampak dan analisis upaya pemulihan ekosistem yang tepat? (Pilih semua jawaban benar)",
+                options: [
+                    "Rantai makanan terputus karena produsen utama (tumbuhan) hancur.",
+                    "Keanekaragaman hayati akan meningkat secara mendadak tepat setelah kebakaran.",
+                    "Reboisasi dengan tanaman lokal membantu mempercepat suksesi ekosistem.",
+                    "Populasi hewan herbivora akan melonjak drastis karena lahan menjadi terbuka."
+                ],
+                correct: [0, 2],
+                explanation: "Kebakaran menghancurkan produsen (tumbuhan) sehingga merusak rantai makanan. Reboisasi tanaman lokal membantu pemulihan ekosistem secara perlahan."
+            },
+            {
+                id: 2,
+                question: "Saat terjadi gerhana matahari total, fenomena apa saja yang terjadi berdasarkan interaksi gerak Bumi, Bulan, dan Matahari? (Pilih semua jawaban benar)",
+                options: [
+                    "Bulan berada persis di antara Matahari dan Bumi dalam satu garis lurus.",
+                    "Sinar matahari ke area Bumi tertentu terhalang sepenuhnya oleh Bulan.",
+                    "Posisi Bumi berada tepat di tengah-tengah antara Matahari dan Bulan.",
+                    "Bayangan umbra Bulan jatuh ke permukaan Bumi."
+                ],
+                correct: [0, 1, 3],
+                explanation: "Gerhana matahari terjadi saat Bulan berada di antara Matahari & Bumi. Bayangan umbra Bulan jatuh ke Bumi sehingga menutup cahaya matahari."
+            },
+            {
+                id: 3,
+                question: "Sistem saraf manusia mengoordinasikan respon tubuh terhadap rangsangan. Manakah tindakan refleks spontan berikut yang membuktikan kerja sistem saraf tanpa melewati kesadaran otak terlebih dahulu? (Pilih semua jawaban benar)",
+                options: [
+                    "Menarik tangan dengan cepat saat tidak sengaja menyentuh wajan panas.",
+                    "Mengingat kembali rumus matematika saat mengerjakan ujian.",
+                    "Kedipan mata secara spontan saat ada debu yang terbang mendekat.",
+                    "Menulis catatan pelajaran IPAS di buku tulis."
+                ],
+                correct: [0, 2],
+                explanation: "Gerak refleks (seperti menarik tangan dari wajan panas atau mengedip saat ada debu) diproses melalui sumsum tulang belakang tanpa menunggu tanggapan sadar dari otak."
+            },
+            {
+                id: 4,
+                question: "Di suatu daerah aliran sungai, warga mengeluhkan air limbah pabrik yang mencemari lingkungan. Pernyataan HOTS manakah yang menggambarkan solusi kelestarian energi & lingkungan yang berkelanjutan? (Pilih semua jawaban benar)",
+                options: [
+                    "Membangun instalasi pengolahan air limbah (IPAL) sebelum dibuang ke sungai.",
+                    "Mengalirkan limbah cair langsung ke laut agar sungai tetap bersih.",
+                    "Menerapkan prinsip 3R (Reduce, Reuse, Recycle) dalam memproduksi barang.",
+                    "Menutup semua pabrik secara permanen tanpa memberi mata pencaharian alternatif."
+                ],
+                correct: [0, 2],
+                explanation: "Pengolahan IPAL dan penerapan 3R adalah solusi ramah lingkungan dan berkelanjutan untuk menjaga kelestarian air dan alam."
+            },
+            {
+                id: 5,
+                question: "Eksperimen Pembuatan Rangkaian Listrik: Ani membuat rangkaian seri dan paralel menggunakan 2 lampu dan 1 baterai. Pernyataan mana yang benar mengenai analisis sifat kedua rangkaian tersebut? (Pilih semua jawaban benar)",
+                options: [
+                    "Pada rangkaian seri, jika satu lampu dilepas/putus, lampu lainnya ikut padam.",
+                    "Pada rangkaian paralel, nyala lampu akan bertambah redup dibanding seri.",
+                    "Pada rangkaian paralel, jika satu jalur padam, lampu di jalur lain tetap menyala.",
+                    "Rangkaian seri menghemat kabel namun membagi tegangan sehingga redup."
+                ],
+                correct: [0, 2, 3],
+                explanation: "Pada seri: arus mengalir 1 jalur (satu putus = semua padam) & lampu lebih redup. Pada paralel: cabang independen membuat lampu lain tetap menyala."
+            },
+            {
+                id: 6,
+                question: "Indonesia memiliki keragaman budaya dan letak geografis yang strategis. Pernyataan manakah yang menganalisis keuntungan posisi geografis Indonesia di persilangan dunia? (Pilih semua jawaban benar)",
+                options: [
+                    "Menjadi jalur perdagangan internasional utama (Jalur Sutra/Maritim).",
+                    "Memiliki keanekaragaman flora dan fauna tipe Asiatis, Peralihan, dan Australis.",
+                    "Indonesia terisolasi dari pengaruh budaya asing sehingga tidak ada akulturasi.",
+                    "Memiliki iklim tropis dengan tanah subur hasil aktivitas vulkanik."
+                ],
+                correct: [0, 1, 3],
+                explanation: "Letak geografis Indonesia di antara dua benua dan samudra menjadikannya pusat perdagangan, kaya kekayaan alam tropis, serta flora-fauna beragam."
+            },
+            {
+                id: 7,
+                question: "Dua buah benda diuji menggunakan magnet batang. Benda A tertarik kuat oleh magnet, sedangkan benda B sama sekali tidak merespon magnet. Manakah analisis jenis bahan yang tepat? (Pilih semua jawaban benar)",
+                options: [
+                    "Benda A kemungkinan besar terbuat dari besi atau baja (Feromagnetik).",
+                    "Benda B kemungkinan terbuat dari kayu, plastik, atau aluminium murni.",
+                    "Benda A pasti terbuat dari bahan plastik tebal.",
+                    "Benda B dapat diubah menjadi magnet tetap dengan cara digosok."
+                ],
+                correct: [0, 1],
+                explanation: "Benda Feromagnetik (besi/baja) ditarik kuat oleh magnet. Benda non-magnetik (kayu/plastik/aluminium) tidak ditarik dan tidak bisa dijadikan magnet."
+            },
+            {
+                id: 8,
+                question: "Rantai makanan di sawah: Padi 🌾 ➔ Belalang 🦗 ➔ Katak 🐸 ➔ Ular 🐍 ➔ Elang 🦅. Jika petani membasmi seluruh populasi ular di sawah, manakah dampak berantai yang akan terjadi? (Pilih semua jawaban benar)",
+                options: [
+                    "Populasi katak akan meningkat pesat karena pemangsanya berkurang.",
+                    "Populasi belalang akan menurun drastis karena pemangsanya (katak) makin banyak.",
+                    "Hasil panen padi petani akan meningkat drastis karena ular habis.",
+                    "Burung elang kekurangan sumber makanan utama."
+                ],
+                correct: [0, 1, 3],
+                explanation: "Jika ular habis, katak bertambah banyak. Katak memakan lebih banyak belalang sehingga belalang berkurang. Elang kehilangan sumber makanan (ular)."
+            },
+            {
+                id: 9,
+                question: "Sifat-Sifat Cahaya: Mengapa kita bisa melihat bayangan tubuh kita sendiri di cermin datar dan melihat pensil tampak 'bengkok' di dalam gelas berisi air? (Pilih semua jawaban benar)",
+                options: [
+                    "Cermin datar memanfaatkan sifat cahaya yang dapat dipantulkan secara teratur.",
+                    "Pensil terlihat bengkok di air karena peristiwa pembiasan/pembelokan cahaya.",
+                    "Cermin dapat membiaskan cahaya ke segala arah secara acak.",
+                    "Cahaya merambat lurus dan menembus benda gelap."
+                ],
+                correct: [0, 1],
+                explanation: "Bayangan cermin terjadi akibat Pemantulan Cahaya. Pensil membengkok dalam air akibat Pembiasan Cahaya ketika melewati dua medium berbeda kerapatan."
+            },
+            {
+                id: 10,
+                question: "Pemanasan Global & Energi Terbarukan: Manakah dari tindakan berikut yang secara langsung mengurangi emisi gas rumah kaca untuk melindungi atmosfer bumi? (Pilih semua jawaban benar)",
+                options: [
+                    "Mengganti penggunaan pembangkit listrik batubara dengan Panel Surya (PLTS).",
+                    "Menebang hutan lindung untuk dijadikan kawasan industri baru.",
+                    "Menggunakan transportasi umum atau bersepeda untuk jarak pendek.",
+                    "Mengurangi penggunaan plastik sekali pakai dan mengolah sampah organik."
+                ],
+                correct: [0, 2, 3],
+                explanation: "Penggunaan PLTS, transportasi ramah lingkungan, dan pengelolaan sampah efektif mengurangi emisi gas rumah kaca dan menjaga suhu bumi."
+            }
+        ];
+
+        /* ==========================================================================
+           GAME ENGINE & CANVAS RENDERER
+           ========================================================================== */
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // State Gim
+        let gameState = 'MENU'; // 'MENU', 'PLAYING', 'QUIZ', 'GAMEOVER', 'VICTORY'
+        let currentQuizIndex = 0;
+        let score = 0;
+        let coins = 0;
+        let lives = 3;
+        let correctQuizCount = 0;
+        let cameraX = 0;
+
+        // Skala Layar Responsive
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // Input Handling
+        const keys = { left: false, right: false, jump: false };
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keys.left = true;
+            if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') keys.right = true;
+            if (e.key === 'ArrowUp' || e.key === ' ' || e.key === 'w' || e.key === 'W') {
+                if (!keys.jump && player.grounded && gameState === 'PLAYING') {
+                    player.vy = -player.jumpStrength;
+                    player.grounded = false;
+                    sfx.playJump();
+                }
+                keys.jump = true;
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keys.left = false;
+            if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') keys.right = false;
+            if (e.key === 'ArrowUp' || e.key === ' ' || e.key === 'w' || e.key === 'W') keys.jump = false;
+        });
+
+        // Touch Control Listeners
+        const setupTouchBtn = (id, keyName) => {
+            const btn = document.getElementById(id);
+            btn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                sfx.init();
+                if (keyName === 'jump' && player.grounded && gameState === 'PLAYING') {
+                    player.vy = -player.jumpStrength;
+                    player.grounded = false;
+                    sfx.playJump();
+                }
+                keys[keyName] = true;
+            });
+            btn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                keys[keyName] = false;
+            });
+        };
+        setupTouchBtn('btnTouchLeft', 'left');
+        setupTouchBtn('btnTouchRight', 'right');
+        setupTouchBtn('btnTouchJump', 'jump');
+
+        /* Entity Gim (Player, Platforms, Blocks, Coins, Enemies) */
+        const player = {
+            x: 100,
+            y: 300,
+            width: 44,
+            height: 52,
+            vx: 0,
+            vy: 0,
+            speed: 5.5,
+            gravity: 0.65,
+            jumpStrength: 13.5,
+            grounded: false,
+            facingRight: true,
+            animFrame: 0,
+            invulnerable: 0
+        };
+
+        let levelPlatforms = [];
+        let levelBlocks = [];
+        let levelCoins = [];
+        let levelEnemies = [];
+
+        // Generasi Level Peta Mario Clay
+        function initLevel() {
+            cameraX = 0;
+            player.x = 80;
+            player.y = 300;
+            player.vx = 0;
+            player.vy = 0;
+
+            levelPlatforms = [];
+            levelBlocks = [];
+            levelCoins = [];
+            levelEnemies = [];
+
+            const groundY = 460;
+            const levelWidth = 4500;
+
+            // Tanah Dasar (Ground Platforms) dengan beberapa jurang
+            let currentX = 0;
+            while (currentX < levelWidth) {
+                let pWidth = 600 + Math.random() * 400;
+                if (currentX > 4000) pWidth = 800; // Finish zone
+                levelPlatforms.push({ x: currentX, y: groundY, w: pWidth, h: 120 });
+                currentX += pWidth + (Math.random() * 120 + 80); // Celah jurang
+            }
+
+            // Tebing Tambahan / Elevated Platforms
+            const elevated = [
+                {x: 350, y: 340, w: 180, h: 30},
+                {x: 750, y: 310, w: 220, h: 30},
+                {x: 1250, y: 320, w: 200, h: 30},
+                {x: 1750, y: 290, w: 250, h: 30},
+                {x: 2300, y: 330, w: 180, h: 30},
+                {x: 2850, y: 300, w: 220, h: 30},
+                {x: 3400, y: 320, w: 240, h: 30}
+            ];
+            elevated.forEach(p => levelPlatforms.push(p));
+
+            // Place 10 Question Blocks (?) spread across level
+            const blockPositions = [
+                {x: 280, y: 320},
+                {x: 600, y: 300},
+                {x: 950, y: 280},
+                {x: 1400, y: 290},
+                {x: 1850, y: 260},
+                {x: 2200, y: 300},
+                {x: 2600, y: 280},
+                {x: 3000, y: 270},
+                {x: 3350, y: 290},
+                {x: 3750, y: 300}
+            ];
+
+            blockPositions.forEach((pos, idx) => {
+                levelBlocks.push({
+                    x: pos.x,
+                    y: pos.y,
+                    w: 44,
+                    h: 44,
+                    quizId: idx,
+                    hit: false,
+                    bounceY: 0
+                });
+            });
+
+            // Sebarkan Koin Clay
+            for (let cX = 200; cX < 4000; cX += 130) {
+                if (Math.random() > 0.3) {
+                    levelCoins.push({
+                        x: cX,
+                        y: 380 - (Math.random() > 0.5 ? 80 : 0),
+                        r: 12,
+                        collected: false
+                    });
+                }
+            }
+
+            // Sebarkan Musuh Limbah Clay
+            const enemySpawns = [450, 850, 1300, 1700, 2150, 2550, 2950, 3450, 3800];
+            enemySpawns.forEach(eX => {
+                levelEnemies.push({
+                    x: eX,
+                    y: groundY - 36,
+                    w: 36,
+                    h: 36,
+                    vx: -1.5,
+                    minX: eX - 100,
+                    maxX: eX + 100,
+                    alive: true
+                });
+            });
+        }
+
+        /* Update Logic Loop */
+        function update() {
+            if (gameState !== 'PLAYING') return;
+
+            // Horizontal Movement
+            if (keys.left) {
+                player.vx = -player.speed;
+                player.facingRight = false;
+            } else if (keys.right) {
+                player.vx = player.speed;
+                player.facingRight = true;
+            } else {
+                player.vx *= 0.8; // Friction
+            }
+
+            // Gravity
+            player.vy += player.gravity;
+
+            // Apply Velocity
+            player.x += player.vx;
+            player.y += player.vy;
+
+            if (player.invulnerable > 0) player.invulnerable--;
+
+            // Camera Tracking
+            cameraX = player.x - canvas.width * 0.35;
+            if (cameraX < 0) cameraX = 0;
+
+            // Ground & Platform Collisions
+            player.grounded = false;
+            levelPlatforms.forEach(p => {
+                if (player.x + player.width > p.x &&
+                    player.x < p.x + p.w &&
+                    player.y + player.height >= p.y &&
+                    player.y + player.height <= p.y + player.vy + 12 &&
+                    player.vy >= 0) {
+                    player.y = p.y - player.height;
+                    player.vy = 0;
+                    player.grounded = true;
+                }
+            });
+
+            // Question Blocks Collision (Siswa Menyundul dari Bawah)
+            levelBlocks.forEach(b => {
+                // Check Head Bump
+                if (player.x + player.width > b.x &&
+                    player.x < b.x + b.w &&
+                    player.y <= b.y + b.h &&
+                    player.y >= b.y + b.h - 15 &&
+                    player.vy < 0) {
+
+                    player.vy = 2; // Memantul turun
+                    if (!b.hit) {
+                        b.hit = true;
+                        b.bounceY = -12;
+                        triggerQuiz(b.quizId);
+                    }
+                }
+
+                // Bounce animation recovery
+                if (b.bounceY < 0) b.bounceY += 1.5;
+            });
+
+            // Coin Collection
+            levelCoins.forEach(c => {
+                if (!c.collected) {
+                    const dist = Math.hypot((player.x + player.width / 2) - c.x, (player.y + player.height / 2) - c.y);
+                    if (dist < c.r + player.width / 2) {
+                        c.collected = true;
+                        coins += 1;
+                        score += 50;
+                        sfx.playCoin();
+                        updateHUD();
+                    }
+                }
+            });
+
+            // Enemy Movement & Collision
+            levelEnemies.forEach(e => {
+                if (!e.alive) return;
+                e.x += e.vx;
+                if (e.x <= e.minX || e.x >= e.maxX) e.vx *= -1;
+
+                // Collision with player
+                if (player.x + player.width > e.x &&
+                    player.x < e.x + e.w &&
+                    player.y + player.height > e.y &&
+                    player.y < e.y + e.h) {
+
+                    // Jika Player melompat di atas kepala musuh
+                    if (player.vy > 0 && player.y + player.height < e.y + 20) {
+                        e.alive = false;
+                        player.vy = -8;
+                        score += 100;
+                        sfx.playHit();
+                    } else if (player.invulnerable === 0) {
+                        // Player Terluka
+                        lives--;
+                        player.invulnerable = 60; // 1 detik kebal
+                        sfx.playHit();
+                        updateHUD();
+                        if (lives <= 0) {
+                            gameOver(false);
+                        }
+                    }
+                }
+            });
+
+            // Jatuh ke Jurang
+            if (player.y > canvas.height + 150) {
+                lives--;
+                sfx.playHit();
+                updateHUD();
+                if (lives <= 0) {
+                    gameOver(false);
+                } else {
+                    // Respawn player
+                    player.x = Math.max(80, player.x - 300);
+                    player.y = 200;
+                    player.vy = 0;
+                }
+            }
+
+            // Finish Zone Check (Tiba di tiang bendera / Ujung Map)
+            if (player.x >= 4200) {
+                gameOver(true);
+            }
+
+            // Animation counter
+            if (Math.abs(player.vx) > 0.5) player.animFrame += 0.2;
+        }
+
+        /* ==========================================================================
+           CANVAS RENDERER (Kartun 3D Claymorphism)
+           ========================================================================== */
+        function render() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 1. Latar Belakang Buatan Plastisin (Sky, Mountains & Clouds)
+            drawClayBackground();
+
+            ctx.save();
+            ctx.translate(-cameraX, 0);
+
+            // 2. Render Platforms (Tanah Clay)
+            levelPlatforms.forEach(p => drawClayPlatform(p));
+
+            // 3. Render Question Blocks (?)
+            levelBlocks.forEach(b => drawClayBlock(b));
+
+            // 4. Render Koin IPAS
+            levelCoins.forEach(c => {
+                if (!c.collected) drawClayCoin(c);
+            });
+
+            // 5. Render Musuh Limbah
+            levelEnemies.forEach(e => {
+                if (e.alive) drawClayEnemy(e);
+            });
+
+            // 6. Render Tiang Finish
+            drawFinishPole(4250, 460);
+
+            // 7. Render Karakter Hero (Plastisin Hero)
+            drawClayPlayer();
+
+            ctx.restore();
+        }
+
+        // --- DRAWING FUNCTIONS ---
+
+        function drawClayBackground() {
+            // Sky Gradient
+            const skyGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            skyGrad.addColorStop(0, '#7dd3fc');
+            skyGrad.addColorStop(1, '#bae6fd');
+            ctx.fillStyle = skyGrad;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Gunung Clay di Latar Belakang
+            const bgOffset = cameraX * 0.2;
+            ctx.fillStyle = '#86efac';
+            ctx.beginPath();
+            ctx.arc(200 - bgOffset, 480, 260, Math.PI, 0);
+            ctx.arc(700 - bgOffset, 500, 320, Math.PI, 0);
+            ctx.arc(1300 - bgOffset, 490, 280, Math.PI, 0);
+            ctx.arc(1900 - bgOffset, 520, 350, Math.PI, 0);
+            ctx.fill();
+
+            // Awan Plastisin
+            ctx.fillStyle = '#ffffff';
+            const drawCloud = (cx, cy) => {
+                const x = cx - (cameraX * 0.4) % (canvas.width + 400);
+                ctx.beginPath();
+                ctx.arc(x, cy, 25, 0, Math.PI * 2);
+                ctx.arc(x + 25, cy - 10, 30, 0, Math.PI * 2);
+                ctx.arc(x + 55, cy, 22, 0, Math.PI * 2);
+                ctx.fill();
+            };
+            drawCloud(150, 80);
+            drawCloud(500, 120);
+            drawCloud(900, 70);
+            drawCloud(1300, 110);
+        }
+
+        function drawClayPlatform(p) {
+            // Main Dirt Clay Body
+            ctx.fillStyle = '#b45309'; // Clay cokelat
+            ctx.beginPath();
+            ctx.roundRect(p.x, p.y, p.w, p.h, [16, 16, 0, 0]);
+            ctx.fill();
+
+            // Highlight Top Grass Layer (Rumput Hijau Clay 3D)
+            ctx.fillStyle = '#22c55e';
+            ctx.beginPath();
+            ctx.roundRect(p.x - 4, p.y - 6, p.w + 8, 22, 12);
+            ctx.fill();
+
+            // Texture Bulatan Plastisin Rumput
+            ctx.fillStyle = '#4ade80';
+            for (let rx = p.x + 15; rx < p.x + p.w - 10; rx += 30) {
+                ctx.beginPath();
+                ctx.arc(rx, p.y + 2, 8, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function drawClayBlock(b) {
+            const drawY = b.y + b.bounceY;
+            ctx.save();
+
+            if (b.hit) {
+                // Empty Block (Terpukul)
+                ctx.fillStyle = '#94a3b8';
+                ctx.beginPath();
+                ctx.roundRect(b.x, drawY, b.w, b.h, 10);
+                ctx.fill();
+                ctx.strokeStyle = '#64748b';
+                ctx.lineWidth = 4;
+                ctx.stroke();
+            } else {
+                // Active Question Block (?) - Kuning Clay 3D
+                const grad = ctx.createLinearGradient(b.x, drawY, b.x + b.w, drawY + b.h);
+                grad.addColorStop(0, '#fde047');
+                grad.addColorStop(1, '#eab308');
+                ctx.fillStyle = grad;
+
+                ctx.beginPath();
+                ctx.roundRect(b.x, drawY, b.w, b.h, 12);
+                ctx.fill();
+                ctx.strokeStyle = '#ca8a04';
+                ctx.lineWidth = 3.5;
+                ctx.stroke();
+
+                // Tanda Tanya (?)
+                ctx.fillStyle = '#713f12';
+                ctx.font = '900 24px "Fredoka One", cursive';
+                ctx.textAlign = 'center';
+                ctx.fillText('?', b.x + b.w / 2, drawY + 31);
+            }
+            ctx.restore();
+        }
+
+        function drawClayCoin(c) {
+            ctx.save();
+            ctx.fillStyle = '#facc15';
+            ctx.beginPath();
+            ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Inner Detail 3D
+            ctx.strokeStyle = '#ca8a04';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            ctx.fillStyle = '#fef08a';
+            ctx.beginPath();
+            ctx.arc(c.x - 3, c.y - 3, c.r * 0.3, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        }
+
+        function drawClayEnemy(e) {
+            ctx.save();
+            // Plastisin Monster Limbah Hitam/Ungu
+            ctx.fillStyle = '#475569';
+            ctx.beginPath();
+            ctx.arc(e.x + e.w / 2, e.y + e.h / 2, e.w / 2, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Mata Merah Marah
+            ctx.fillStyle = '#ef4444';
+            ctx.beginPath();
+            ctx.arc(e.x + 10, e.y + 14, 4, 0, Math.PI * 2);
+            ctx.arc(e.x + 26, e.y + 14, 4, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        function drawFinishPole(x, groundY) {
+            // Tiang Bendera Clay
+            ctx.fillStyle = '#cbd5e1';
+            ctx.fillRect(x, groundY - 220, 12, 220);
+
+            // Bola Emas Atas
+            ctx.fillStyle = '#facc15';
+            ctx.beginPath();
+            ctx.arc(x + 6, groundY - 225, 14, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Bendera Merah Putih Clay
+            ctx.fillStyle = '#ef4444';
+            ctx.fillRect(x + 12, groundY - 210, 50, 20);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(x + 12, groundY - 190, 50, 20);
+        }
+
+        function drawClayPlayer() {
+            if (player.invulnerable % 4 >= 2) return; // Blink effect when hit
+
+            ctx.save();
+            ctx.translate(player.x + player.width / 2, player.y + player.height / 2);
+            if (!player.facingRight) ctx.scale(-1, 1);
+
+            // Body (Baju Plastisin Merah Clay)
+            ctx.fillStyle = '#ef4444';
+            ctx.beginPath();
+            ctx.roundRect(-16, -6, 32, 28, 10);
+            ctx.fill();
+
+            // Overalls Celana Biru
+            ctx.fillStyle = '#0284c7';
+            ctx.beginPath();
+            ctx.roundRect(-14, 8, 28, 16, 6);
+            ctx.fill();
+
+            // Kepala Plastisin Krem/Kulit
+            ctx.fillStyle = '#fed7aa';
+            ctx.beginPath();
+            ctx.arc(0, -18, 16, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Topi Merah Clay
+            ctx.fillStyle = '#dc2626';
+            ctx.beginPath();
+            ctx.arc(0, -22, 17, Math.PI, 0);
+            ctx.fill();
+            // Moncong Topi
+            ctx.beginPath();
+            ctx.roundRect(0, -23, 20, 6, 3);
+            ctx.fill();
+
+            // Mata Clay
+            ctx.fillStyle = '#0f172a';
+            ctx.beginPath();
+            ctx.arc(6, -18, 3, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Kaki / Sepatu Clay (Animasi Berjalan)
+            const legOffset = Math.sin(player.animFrame) * 8;
+            ctx.fillStyle = '#78350f';
+            ctx.beginPath();
+            ctx.arc(-8 + (player.grounded ? legOffset : 0), 22, 7, 0, Math.PI * 2);
+            ctx.arc(8 - (player.grounded ? legOffset : 0), 22, 7, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        // Loop Animasi Utama
+        function gameLoop() {
+            update();
+            render();
+            requestAnimationFrame(gameLoop);
+        }
+
+        /* ==========================================================================
+           LOGIKA KUIS HOTS & POP-UP INTERAKSI
+           ========================================================================== */
+        let selectedAnswers = [];
+
+        function triggerQuiz(quizId) {
+            gameState = 'QUIZ';
+            currentQuizIndex = quizId;
+            const q = quizBank[quizId];
+            selectedAnswers = [];
+
+            // Reset UI Pop-up Kuis
+            document.getElementById('modalQuestionNum').innerText = `Soal #${quizId + 1} / 10`;
+            document.getElementById('quizQuestionText').innerText = q.question;
+            document.getElementById('quizFeedback').classList.add('hidden');
+            document.getElementById('btnSubmitAnswer').classList.remove('hidden');
+            document.getElementById('btnNextQuiz').classList.add('hidden');
+
+            // Render Opsi Jawaban Checkbox
+            const container = document.getElementById('quizOptionsContainer');
+            container.innerHTML = '';
+
+            q.options.forEach((optText, optIdx) => {
+                const optLabel = document.createElement('label');
+                optLabel.className = 'custom-checkbox flex items-center p-3.5 rounded-2xl border-2 border-slate-200 bg-slate-50 hover:bg-sky-50 cursor-pointer transition-all';
+                optLabel.innerHTML = `
+                    <input type="checkbox" value="${optIdx}" onchange="toggleOption(${optIdx})">
+                    <span class="checkmark"></span>
+                    <span class="text-slate-800 font-bold text-sm md:text-base">${optText}</span>
+                `;
+                container.appendChild(optLabel);
+            });
+
+            document.getElementById('quizModal').classList.remove('hidden');
+        }
+
+        window.toggleOption = function(optIdx) {
+            const idx = selectedAnswers.indexOf(optIdx);
+            if (idx > -1) {
+                selectedAnswers.splice(idx, 1);
+            } else {
+                selectedAnswers.push(optIdx);
+            }
+        };
+
+        // Periksa Jawaban Siswa
+        document.getElementById('btnSubmitAnswer').addEventListener('click', () => {
+            const q = quizBank[currentQuizIndex];
+            const feedbackEl = document.getElementById('quizFeedback');
+
+            if (selectedAnswers.length === 0) {
+                alert("Pilihlah minimal satu jawaban terlebih dahulu!");
+                return;
+            }
+
+            // Validasi apakah set jawaban siswa persis sama dengan kunci jawaban HOTS
+            const isCorrect = selectedAnswers.length === q.correct.length &&
+                              selectedAnswers.every(val => q.correct.includes(val));
+
+            feedbackEl.classList.remove('hidden', 'bg-emerald-100', 'border-emerald-400', 'text-emerald-900', 'bg-red-100', 'border-red-400', 'text-red-900');
+
+            if (isCorrect) {
+                sfx.playCorrect();
+                score += 200;
+                coins += 5;
+                correctQuizCount++;
+                feedbackEl.classList.add('bg-emerald-100', 'border-emerald-400', 'text-emerald-900');
+                feedbackEl.innerHTML = `🎉 <b>HEBAT! Jawaban Analisis Kamu Tepat Sekali!</b><br><span class="font-normal text-xs mt-1 block">${q.explanation}</span>`;
+            } else {
+                sfx.playWrong();
+                feedbackEl.classList.add('bg-red-100', 'border-red-400', 'text-red-900');
+                feedbackEl.innerHTML = `❌ <b>Jawaban Kurang Tepat!</b><br><span class="font-normal text-xs mt-1 block"><b>Pembahasan:</b> ${q.explanation}</span>`;
+            }
+
+            updateHUD();
+            document.getElementById('btnSubmitAnswer').classList.add('hidden');
+            document.getElementById('btnNextQuiz').classList.remove('hidden');
+        });
+
+        document.getElementById('btnNextQuiz').addEventListener('click', () => {
+            document.getElementById('quizModal').classList.add('hidden');
+            gameState = 'PLAYING';
+        });
+
+        /* ==========================================================================
+           KONTROL HUD & MENU SYSTEM
+           ========================================================================== */
+        function updateHUD() {
+            document.getElementById('livesText').innerText = lives;
+            document.getElementById('coinsText').innerText = coins;
+            document.getElementById('scoreText').innerText = score;
+            document.getElementById('quizProgressText').innerText = `Soal: ${correctQuizCount}/10 Dijawab Benar`;
+        }
+
+        function startGame() {
+            sfx.init();
+            score = 0;
+            coins = 0;
+            lives = 3;
+            correctQuizCount = 0;
+            updateHUD();
+
+            initLevel();
+
+            document.getElementById('mainMenu').classList.add('hidden');
+            document.getElementById('instructionsModal').classList.add('hidden');
+            document.getElementById('endGameModal').classList.add('hidden');
+            document.getElementById('hud').classList.remove('hidden');
+
+            gameState = 'PLAYING';
+        }
+
+        function gameOver(isVictory) {
+            gameState = isVictory ? 'VICTORY' : 'GAMEOVER';
+
+            const titleEl = document.getElementById('endGameTitle');
+            const iconEl = document.getElementById('endGameIcon');
+            const finalScore = score + (coins * 10) + (correctQuizCount * 100);
+
+            if (isVictory) {
+                sfx.playCorrect();
+                iconEl.innerText = "🏆";
+                titleEl.innerText = "Selamat! Kamu Menang!";
+            } else {
+                sfx.playWrong();
+                iconEl.innerText = "💔";
+                titleEl.innerText = "Petualangan Berakhir!";
+            }
+
+            document.getElementById('endCorrectCount').innerText = `${correctQuizCount} / 10 Soal`;
+            document.getElementById('endCoins').innerText = coins;
+            document.getElementById('endFinalScore').innerText = finalScore;
+
+            // Rating Badge Evaluasi Belajar
+            const badgeEl = document.getElementById('endGradeBadge');
+            if (correctQuizCount >= 8) {
+                badgeEl.className = "text-center py-2 px-3 rounded-xl font-bold text-sm bg-emerald-100 text-emerald-800 border border-emerald-300";
+                badgeEl.innerText = "🌟 Sangat Baik (Master Sains IPAS Kelas 6)";
+            } else if (correctQuizCount >= 5) {
+                badgeEl.className = "text-center py-2 px-3 rounded-xl font-bold text-sm bg-amber-100 text-amber-800 border border-amber-300";
+                badgeEl.innerText = "👍 Cukup Baik (Tingkatkan Pembahasan HOTS)";
+            } else {
+                badgeEl.className = "text-center py-2 px-3 rounded-xl font-bold text-sm bg-red-100 text-red-800 border border-red-300";
+                badgeEl.innerText = "📚 Perlu Belajar Lagi (Ayo Coba Ulangi!)";
+            }
+
+            document.getElementById('endGameModal').classList.remove('hidden');
+        }
+
+        // Event Listeners Menu Buttons
+        document.getElementById('btnStart').addEventListener('click', startGame);
+        document.getElementById('btnHowTo').addEventListener('click', () => {
+            document.getElementById('instructionsModal').classList.remove('hidden');
+        });
+        document.getElementById('btnCloseHowTo').addEventListener('click', () => {
+            document.getElementById('instructionsModal').classList.add('hidden');
+        });
+        document.getElementById('btnRestart').addEventListener('click', startGame);
+
+        // Run Engine on Window Load
+        window.onload = function() {
+            initLevel();
+            gameLoop();
+        };
+    </script>
+</body>
+</html>
